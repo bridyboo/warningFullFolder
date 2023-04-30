@@ -4,12 +4,17 @@
 #   the folder
 
 
+# ok so it turns out python services, needs to have python rooted on to SYSTEMPATH (it's a DLL issue)
 import os
-import shutil
+import fileWatch
 import time
 import win32serviceutil
 import win32service
 import win32event
+
+base = os.path.join('B:', 'ForWatchdogProject', 'files')
+dest = os.path.join('B:', 'ForWatchdogProject', 'archives', 'archive')
+root = os.path.join('B:', 'ForWatchdogProject', 'archives.zip')
 
 
 class ArchiveService(win32serviceutil.ServiceFramework):
@@ -26,13 +31,7 @@ class ArchiveService(win32serviceutil.ServiceFramework):
 
     def SvcDoRun(self):
         while True:
-            files = os.listdir("B:\ForWatchdogProject")
-            for file in files:
-                if file.endswith("9999"):
-                    source_path = os.path.abspath(file)
-                    dest_path = os.path.abspath("archive/" + file)  # archiving starts here
-                    shutil.move(source_path, dest_path)
-                    print(f"{file} archived to {dest_path}")
+            fileWatch.zipFolder(base, dest)
             time.sleep(10)
 
 
