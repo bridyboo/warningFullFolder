@@ -5,7 +5,6 @@
 
 import os
 import shutil
-import time
 import win32serviceutil
 import win32service
 import win32event
@@ -31,10 +30,8 @@ class ArchiveService(win32serviceutil.ServiceFramework):
         # search through this file that has a list of all the fsrv folders for example:
         with open(base, "r") as file:
             for path in file:
-                path = path.rstrip('\n')  # important because,\n whitespace is being read by os
-                root = os.path.dirname(path)
-                basename = os.path.basename(path)
-                destination = os.path.join(root, 'archives', 'archive_' + basename)
+                path = path.rstrip('\n')  # important because OS reads the \n breaking the script
+                destination = trimPathName(path)
                 zipFolder(path, destination)
 
 
@@ -45,6 +42,15 @@ def zipFolder(folder, zip_destination):
             if file.endswith("5.txt"):
                 shutil.make_archive(zip_destination, format='zip', base_dir=folder)
                 # os.remove(base + file) ? don't know if thi will work
+
+
+# This function trims the dirname & basename to create unique .zip files for each folder in the 'filepath' file
+def trimPathName(folder):
+    root = os.path.dirname(folder)
+    basename = os.path.basename(folder)
+    destination = os.path.join(root, 'archives', 'archive_' + basename)
+    return destination
+
 
 if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(ArchiveService)
