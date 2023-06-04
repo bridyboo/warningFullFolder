@@ -1,12 +1,10 @@
-# This class keeps track of files that have been generated in this folder. It will notify the tech
-#   when the folder is full (or close to full).
-# This class will also possibly be able to automatically zip the generated files that is overcrowding
-#   the folder
+# Creates a windows service that does the following:
+# Reads through a file containing a list of paths that needs to be 'monitored'
+# Folders will be archived and sent into a \basename\archive\ folder
 
 
-# ok so it turns out python services, needs to have python rooted on to SYSTEMPATH (it's a DLL issue)
 import os
-import fileWatch
+import shutil
 import time
 import win32serviceutil
 import win32service
@@ -30,10 +28,23 @@ class ArchiveService(win32serviceutil.ServiceFramework):
         win32event.SetEvent(self.stop_event)
 
     def SvcDoRun(self):
-        while True:
-            fileWatch.zipFolder(base, dest)
-            time.sleep(10)
+        # search through this file that has a list of all the fsrv folders for example:
+        with open(base, "r") as file:
+            for path in file:
+                path = path.rstrip('\n')  # important because,\n whitespace is being read by os
+                root = os.path.dirname(path)
+                basename = os.path.basename(path)
+                destination = os.path.join(root, 'archives', 'archive_' + basename)
+                zipFolder(path, destination)
 
+
+# This function walks through the path queried and zips all the files in the folder into an archive folder
+def zipFolder(folder, zip_destination):
+    for root, dirs, files in os.walk(folder, topdown=False):
+        for file in files:
+            if file.endswith("5.txt"):
+                shutil.make_archive(zip_destination, format='zip', base_dir=folder)
+                # os.remove(base + file) ? don't know if thi will work
 
 if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(ArchiveService)
