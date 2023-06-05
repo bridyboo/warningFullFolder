@@ -5,34 +5,48 @@
 
 import os
 import shutil
+import sys
+import time
 import win32serviceutil
 import win32service
 import win32event
+import servicemanager
 
-base = os.path.join('B:', 'ForWatchdogProject', 'files')
-dest = os.path.join('B:', 'ForWatchdogProject', 'archives', 'archive')
-root = os.path.join('B:', 'ForWatchdogProject', 'archives.zip')
+cwd = os.getcwd()
+base = cwd + r'\filepath.txt'
 
 
 class ArchiveService(win32serviceutil.ServiceFramework):
-    _svc_name_ = "ArchiveService"
-    _svc_display_name_ = "Archive Service"
+    _svc_name_ = "ArchiveService2"
+    _svc_display_name_ = "Archive Service2"
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
+        self.is_running = True
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.stop_event)
+        self.is_running = False
 
     def SvcDoRun(self):
-        # search through this file that has a list of all the fsrv folders for example:
-        with open(base, "r") as file:
-            for path in file:
-                path = path.rstrip('\n')  # important because OS reads the \n breaking the script
-                destination = trimPathName(path)
-                zipFolder(path, destination)
+        servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+                              servicemanager.PYS_SERVICE_STARTED,
+                              (self._svc_name_, ''))
+        self.main()
+
+    def main(self):
+        while self.is_running:
+            # search through this file that has a list of all the fsrv folders for example:
+            with open(base, "r") as file:
+                for path in file:
+                    path = path.rstrip('\n')  # important because OS reads the \n breaking the script
+                    destination = trimPathName(path)
+                    zipFolder(path, destination)
+
+            # Sleep for 10 seconds
+            time.sleep(10)
 
 
 # This function walks through the path queried and zips all the files in the folder into an archive folder

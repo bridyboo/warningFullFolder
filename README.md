@@ -4,6 +4,11 @@
 # This class will also possibly be able to automatically zip the generated files that is overcrowding the folder
 # The program checks a file that has a list of all the folders that it "watches" over
 # ok so it turns out python services, needs to have python rooted on to SYSTEMPATH (it's a DLL issue)
+# When running the filename.py install command. Needs to be run with "admin" permission, open cmd/powershell with admin permission 
+# So when the service is created it the 'current working directory' will be the python library .\AppData\Local\Programs\Python\Python38
+# pywin32_postinstsall.py may or may not be necessary to run after installing
+
+
 
 
 Both running a Python script as a Windows service and scheduling a Python script to run at specific times have their own advantages and use cases. Let's explore each option:
