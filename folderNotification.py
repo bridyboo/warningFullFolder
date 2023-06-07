@@ -5,15 +5,17 @@
 
 import os
 import shutil
-import sys
 import time
 import win32serviceutil
 import win32service
 import win32event
 import servicemanager
 
+# CLASS VARIABLE
 cwd = os.getcwd()
 base = cwd + r'\filepath.txt'
+POSTFIX = r'5.txt'
+##################
 
 
 class ArchiveService(win32serviceutil.ServiceFramework):
@@ -50,12 +52,13 @@ class ArchiveService(win32serviceutil.ServiceFramework):
 
 
 # This function walks through the path queried and zips all the files in the folder into an archive folder
+# This will trigger when there's a file that ends with a specific 'postfix' i.e. testfile999 << ends at 999
 def zipFolder(folder, zip_destination):
     for root, dirs, files in os.walk(folder, topdown=False):
         for file in files:
-            if file.endswith("5.txt"):
+            if file.endswith(POSTFIX):  # modifies end with postfix
                 shutil.make_archive(zip_destination, format='zip', base_dir=folder)
-                # os.remove(base + file) ? don't know if thi will work
+                # os.remove(base + file) ? don't know if this will work
 
 
 # This function trims the dirname & basename to create unique .zip files for each folder in the 'filepath' file
