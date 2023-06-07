@@ -39,7 +39,7 @@ class ArchiveService(win32serviceutil.ServiceFramework):
     def main(self):
         while self.is_running:
             # search through this file that has a list of all the fsrv folders for example:
-            with open(base, "r") as file:
+            with open(base, "r") as file:  # as a service this opens up the python lib path and creates filepath.txt
                 for path in file:
                     path = path.rstrip('\n')  # important because OS reads the \n breaking the script
                     destination = trimPathName(path)

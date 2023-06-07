@@ -3,11 +3,14 @@
 #   when the folder is full (or close to full).
 # This class will also possibly be able to automatically zip the generated files that is overcrowding the folder
 # The program checks a file that has a list of all the folders that it "watches" over
+
+# Personal Troubleshooting:
 # ok so it turns out python services, needs to have python rooted on to SYSTEMPATH (it's a DLL issue)
 # When running the filename.py install command. Needs to be run with "admin" permission, open cmd/powershell with admin permission 
 # So when the service is created it the 'current working directory' will be the python library .\AppData\Local\Programs\Python\Python38
 # pywin32_postinstsall.py may or may not be necessary to run after installing
-
+# When compressing with pyinstaller. Make sure to use pyinstaller --hidden-import win32timezone folderNotification.py --onefile
+# hidden import is important because pyinstaller misses the win32timezone module
 
 
 
