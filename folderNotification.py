@@ -1,35 +1,34 @@
-# Creates a windows service that does the following:
-# Reads through a file containing a list of paths that needs to be 'monitored'
-# Folders will be archived and sent into a \basename\archive\ folder
-
-
-import os
-import shutil
-import time
 import win32serviceutil
 import win32service
 import win32event
 import servicemanager
+import socket
+import os
+import sys
+import time
+import shutil
 
-# CLASS VARIABLE
-cwd = os.getcwd()
-base = cwd + r'\filepath.txt'
+# Global Variable
+#######################################################################################################################
 POSTFIX = r'5.txt'
-##################
+cwd = os.getcwd()
+#base = os.path.join(cwd, 'filepath.txt')  # this doesn't because dynamic
+base = r'C:\\Program Files (x86)\\archiveService\\filepath.txt'  # so this shit works, because it's a static path
+#######################################################################################################################
 
-
-class ArchiveService(win32serviceutil.ServiceFramework):
-    _svc_name_ = "ArchiveService2"
-    _svc_display_name_ = "Archive Service2"
+class MyService(win32serviceutil.ServiceFramework):
+    _svc_name_ = 'ArchiveService'
+    _svc_display_name_ = 'ArchiveService'
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
-        self.stop_event = win32event.CreateEvent(None, 0, 0, None)
+        self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
+        socket.setdefaulttimeout(60)
         self.is_running = True
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        win32event.SetEvent(self.stop_event)
+        win32event.SetEvent(self.hWaitStop)
         self.is_running = False
 
     def SvcDoRun(self):
@@ -50,16 +49,14 @@ class ArchiveService(win32serviceutil.ServiceFramework):
             # Sleep for 10 seconds
             time.sleep(10)
 
-
 # This function walks through the path queried and zips all the files in the folder into an archive folder
 # This will trigger when there's a file that ends with a specific 'postfix' i.e. testfile999 << ends at 999
 def zipFolder(folder, zip_destination):
     for root, dirs, files in os.walk(folder, topdown=False):
         for file in files:
             if file.endswith(POSTFIX):  # modifies end with postfix
-                shutil.make_archive(zip_destination, format='zip', base_dir=folder)
+                shutil.make_archive(os.path.join(zip_destination), format='zip', base_dir=folder)
                 # os.remove(base + file) ? don't know if this will work
-
 
 # This function trims the dirname & basename to create unique .zip files for each folder in the 'filepath' file
 def trimPathName(folder):
@@ -68,6 +65,10 @@ def trimPathName(folder):
     destination = os.path.join(root, 'archives', 'archive_' + basename)
     return destination
 
-
-if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(ArchiveService)
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(MyService)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(MyService)

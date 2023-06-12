@@ -11,7 +11,7 @@
 # pywin32_postinstsall.py may or may not be necessary to run after installing
 # When compressing with pyinstaller. Make sure to use pyinstaller --hidden-import win32timezone folderNotification.py --onefile
 # hidden import is important because pyinstaller misses the win32timezone module
-
+# Windows services do not have the 'current working directory' as the location of their .exe or install folder it's somewhere else
 
 
 Both running a Python script as a Windows service and scheduling a Python script to run at specific times have their own advantages and use cases. Let's explore each option:
