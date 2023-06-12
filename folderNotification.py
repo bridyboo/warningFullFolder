@@ -7,14 +7,15 @@ import os
 import sys
 import time
 import shutil
+import InstallerFolder
 
 # Global Variable
 #######################################################################################################################
 POSTFIX = r'5.txt'
-cwd = os.getcwd()
-#base = os.path.join(cwd, 'filepath.txt')  # this doesn't because dynamic
 base = r'C:\\Program Files (x86)\\archiveService\\filepath.txt'  # so this shit works, because it's a static path
 #######################################################################################################################
+
+folder = InstallerFolder.InstallFolder()
 
 class MyService(win32serviceutil.ServiceFramework):
     _svc_name_ = 'ArchiveService'
@@ -40,11 +41,16 @@ class MyService(win32serviceutil.ServiceFramework):
     def main(self):
         while self.is_running:
             # search through this file that has a list of all the fsrv folders for example:
-            with open(base, "r") as file:  # as a service this opens up the python lib path and creates filepath.txt
-                for path in file:
-                    path = path.rstrip('\n')  # important because OS reads the \n breaking the script
-                    destination = trimPathName(path)
-                    zipFolder(path, destination)
+            try:
+                uncBase = os.path.join(folder.getBase())
+                with open(base, "r") as file:  # as a service this opens up the python lib path and creates filepath.txt
+                    for path in file:
+                        path = path.rstrip('\n')  # important because OS reads the \n breaking the script
+                        destination = trimPathName(path)
+                        zipFolder(path, destination)
+            except FileNotFoundError:
+                with open(base, "w"):
+                    pass
 
             # Sleep for 10 seconds
             time.sleep(10)
