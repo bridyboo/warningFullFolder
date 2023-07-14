@@ -80,3 +80,6 @@ if __name__ == '__main__':
         servicemanager.StartServiceCtrlDispatcher()
     else:
         win32serviceutil.HandleCommandLine(MyService)
+
+
+# pyinstaller --hidden-import win32timezone folderNotification.py --onefile
