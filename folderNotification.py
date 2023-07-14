@@ -43,15 +43,16 @@ class MyService(win32serviceutil.ServiceFramework):
             # search through this file that has a list of all the fsrv folders for example:
             try:
                 uncBase = os.path.join(folder.getBase())
+                if not os.path.exists(base):  # create folder if ArchiveService in programfile(x86) if don't exist
+                    os.makedirs(os.path.dirname(base))
                 with open(base, "r") as file:  # as a service this opens up the python lib path and creates filepath.txt
                     for path in file:
                         path = path.rstrip('\n')  # important because OS reads the \n breaking the script
                         destination = trimPathName(path)
                         zipFolder(path, destination)
-            except FileNotFoundError:
+            except FileNotFoundError: # Creates a file if doesn't exist need to create folder as well
                 with open(base, "w"):
                     pass
-
             # Sleep for 10 seconds
             time.sleep(10)
 
@@ -70,6 +71,7 @@ def trimPathName(folder):
     basename = os.path.basename(folder)
     destination = os.path.join(root, 'archives', 'archive_' + basename)
     return destination
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
