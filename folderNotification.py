@@ -54,7 +54,7 @@ class MyService(win32serviceutil.ServiceFramework):
                 with open(base, "w"):
                     pass
             # Sleep for 10 seconds
-            time.sleep(10)
+            time.sleep(600)
 
 # This function walks through the path queried and zips all the files in the folder into an archive folder
 # This will trigger when there's a file that ends with a specific 'postfix' i.e. testfile999 << ends at 999
