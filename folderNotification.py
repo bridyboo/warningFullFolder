@@ -13,7 +13,7 @@ import InstallerFolder
 # Source is the file that will be archived
 # destination is the folder of the zip
 # target is the zip file created
-def make_archive(source,destination, target):
+def make_archive(source, destination, target):
     if not os.path.exists(destination):
         os.makedirs(destination)
     base = os.path.basename(target)
